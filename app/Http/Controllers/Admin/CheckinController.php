@@ -27,6 +27,8 @@ class CheckinController extends Controller
                 $categories = Category::orderBy('name')->get();
                 $brands = Brand::orderBy('name')->get();
 
+                $products = Product::orderBy('sku')->get();
+
                 $checkinsQuery = Checkin::query();
                 $marikinaQuery = Checkin::where('location', 'MARIKINA');
                 $ajuanQuery = Checkin::where('location', 'A-JUAN');
@@ -79,7 +81,7 @@ class CheckinController extends Controller
                 $marikina_checkins = $marikinaQuery->paginate(20, ['*'], 'marikina_checkins');
                 $ajuan_checkins = $ajuanQuery->paginate(20, ['*'], 'ajuan_checkins');
                 $ortigas_checkins = $ortigasQuery->paginate(20, ['*'], 'ortigas_checkins');
-                return view('admin.checkin.index', compact('checkins', 'categories', 'brands', 'marikina_checkins', 'ajuan_checkins', 'ortigas_checkins'));
+                return view('admin.checkin.index', compact('checkins', 'categories', 'brands', 'marikina_checkins', 'ajuan_checkins', 'ortigas_checkins', 'products'));
                 break;
         }
     }
@@ -100,49 +102,44 @@ class CheckinController extends Controller
 
     public function store(Request $request, Product $product)
     {
-
         $request->validate([
             'location' => 'required',
-            'checkindate' => 'required|after:01/01/2012',
-            'ponumber' => 'required',
-            'strnumber' => 'required',
+            'checkindate' => 'nullable|date|after:01/01/2012',
             'sku' => 'required',
-            'serialnumber' => 'required',
-            'quantity' => 'required',
+            'quantity' => 'required|integer|min:1',
             'status' => 'required',
-            'remarks' => 'required',
-
         ]);
 
-        $product = Product::whereRaw("LOWER(REPLACE(`location`, ' ' ,''))  = ?",  [strtolower(str_replace(' ', '', $request->location))])
-            ->whereRaw("LOWER(REPLACE(`sku`, ' ' ,''))  = ?",  [strtolower(str_replace(' ', '', $request->sku))])
+        $product = Product::whereRaw("LOWER(REPLACE(`sku`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $request->sku))])
             ->first();
 
-        if ($product) {
-            if ($request->quantity >= 1) {
-                $checkin = new Checkin();
-                $checkin->location = $request->location;
-                $checkin->checkindate = $request->checkindate;
-                $checkin->category_id = $product->category_id;
-                $checkin->ponumber = $request->ponumber;
-                $checkin->strnumber = $request->strnumber;
-                $checkin->brand = $product->brand;
-                $checkin->sku = $request->sku;
-                $checkin->productcode = $product->productcode;
-                $checkin->model = $product->model;
-                $checkin->itemdescription = $product->description;
-                $checkin->serialnumber = $request->serialnumber;
-                $checkin->quantity = $request->quantity;
-                $checkin->uom = $product->uom;
-                $checkin->status = $request->status;
-                $checkin->remarks = $request->remarks;
-                $checkin->save();
-            } else {
-                return redirect('/admin/checkins')->with('error', 'Invalid quantity!');
-            }
-        } else {
+        if (!$product) {
             return redirect('/admin/checkins')->with('error', 'No item exists! Please check the item information.');
         }
+
+        $checkin = new Checkin();
+
+        $checkin->location = $request->location;
+        $checkin->checkindate = $request->checkindate ?: now()->toDateString();
+        $checkin->category_id = $product->category_id;
+
+        // Set optional fields to empty string if not provided
+        $checkin->ponumber = $request->ponumber ?? '';
+        $checkin->strnumber = $request->strnumber ?? '';
+        $checkin->serialnumber = $request->serialnumber ?? '';
+        $checkin->remarks = $request->remarks ?? '';
+
+        $checkin->brand = $product->brand;
+        $checkin->sku = $request->sku;
+        $checkin->productcode = $product->productcode;
+        $checkin->model = $product->model;
+        $checkin->itemdescription = $product->description;
+        $checkin->quantity = $request->quantity;
+        $checkin->uom = $product->uom;
+        $checkin->status = $request->status;
+
+        $checkin->save();
+
         return redirect('/admin/checkins')->with('message', 'Item Checked-in!');
     }
 
