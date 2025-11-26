@@ -28,6 +28,7 @@ class CheckinController extends Controller
                 $brands = Brand::orderBy('name')->get();
 
                 $products = Product::orderBy('sku')->get();
+                // We already have id column in products, so product->id corresponds to inventory id.
 
                 $checkinsQuery = Checkin::query();
                 $marikinaQuery = Checkin::where('location', 'MARIKINA');
@@ -117,6 +118,11 @@ class CheckinController extends Controller
             return redirect('/admin/checkins')->with('error', 'No item exists! Please check the item information.');
         }
 
+        // Check if requested quantity is available in inventory
+        if ($request->quantity > $product->quantity) {
+            return redirect('/admin/checkins')->with('error', 'Requested quantity exceeds available inventory quantity.');
+        }
+
         $checkin = new Checkin();
 
         $checkin->location = $request->location;
@@ -140,7 +146,11 @@ class CheckinController extends Controller
 
         $checkin->save();
 
-        return redirect('/admin/checkins')->with('message', 'Item Checked-in!');
+        // Subtract the checked-in quantity from the inventory product quantity
+        $product->quantity -= $request->quantity;
+        $product->save();
+
+        return redirect('/admin/checkins')->with('message', 'Item Checked-in and inventory updated!');
     }
 
     public function update(Request $request, $id)
@@ -176,11 +186,17 @@ class CheckinController extends Controller
 
     public function destroy($id)
     {
-
         $checkin = Checkin::findOrFail($id);
         if ($checkin) {
+            // Restore the quantity of deleted checkin back to inventory
+            $product = Product::where('sku', $checkin->sku)->first();
+            if ($product) {
+                $product->quantity += $checkin->quantity;
+                $product->save();
+            }
+
             $checkin->delete();
-            return redirect('/admin/checkins')->with('warning', 'Check-in item deleted!');
+            return redirect('/admin/checkins')->with('warning', 'Check-in item deleted and inventory restored!');
         } else {
             return redirect('/admin/checkins')->with('error', 'Can\'t delete non-existing item!');
         }

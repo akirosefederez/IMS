@@ -16,9 +16,9 @@
                         <label for="location" class="form-label">Location</label>
                         <select name="location" id="location" class="form-control" required>
                             <option value="" selected disabled>Select Location</option>
-                            <option value="ORTIGAS">ORTIGAS</option>
                             <option value="A-JUAN">A-JUAN</option>
                             <option value="MARIKINA">MARIKINA</option>
+                            <option value="ORTIGAS">ORTIGAS</option>
                         </select>
                         @error('location')
                         <p class="text-danger">{{ $message }}</p>
@@ -31,13 +31,15 @@
                             <option value="" selected disabled>Select a product</option>
                             @foreach ($products as $product)
                             <option value="{{ $product->sku }}"
+                                data-id="{{ $product->id }}"
                                 data-category_id="{{ $product->category_id }}"
                                 data-brand="{{ $product->brand }}"
                                 data-productcode="{{ $product->productcode }}"
                                 data-model="{{ $product->model }}"
                                 data-description="{{ $product->description }}"
-                                data-uom="{{ $product->uom }}">
-                                {{ $product->sku }} - {{ $product->description }}
+                                data-uom="{{ $product->uom }}"
+                                data-quantity="{{ $product->quantity ?? 0 }}">
+                                {{ $product->sku }} - {{ $product->description }} (Available: {{ $product->quantity ?? 0 }})
                             </option>
                             @endforeach
                         </select>
@@ -49,6 +51,7 @@
                     <div class="mb-3">
                         <label for="quantity" class="form-label">Quantity</label>
                         <input type="number" min="1" name="quantity" id="quantity" class="form-control" value="1" required />
+                        <small id="quantityHelp" class="form-text text-muted"></small>
                         @error('quantity')
                         <p class="text-danger">{{ $message }}</p>
                         @enderror
@@ -97,6 +100,41 @@
         const descriptionField = document.getElementById('description');
         const uomField = document.getElementById('uom');
 
+        const locationSelector = document.getElementById('location');
+
+        function filterProductsByLocation(location) {
+            const options = productSelector.options;
+            for (let i = options.length - 1; i >= 0; i--) {
+                const option = options[i];
+                if (option.value === "") continue; // Skip placeholder
+                const productId = parseInt(option.getAttribute('data-id'), 10);
+
+                let showOption = false;
+                if (location === 'A-JUAN') {
+                    showOption = productId >= 1 && productId <= 238;
+                } else if (location === 'MARIKINA') {
+                    showOption = productId >= 239 && productId <= 295;
+                } else if (location === 'ORTIGAS') {
+                    showOption = productId >= 296 && productId <= 387;
+                }
+
+                option.style.display = showOption ? '' : 'none';
+            }
+            // Reset product selector to default when location changes
+            productSelector.value = "";
+            // Reset hidden fields
+            categoryIdField.value = "";
+            brandField.value = "";
+            productcodeField.value = "";
+            modelField.value = "";
+            descriptionField.value = "";
+            uomField.value = "";
+        }
+
+        locationSelector.addEventListener('change', function () {
+            filterProductsByLocation(this.value);
+        });
+
         productSelector.addEventListener('change', function (e) {
             const selectedOption = e.target.options[e.target.selectedIndex];
 
@@ -106,6 +144,41 @@
             modelField.value = selectedOption.getAttribute('data-model') || '';
             descriptionField.value = selectedOption.getAttribute('data-description') || '';
             uomField.value = selectedOption.getAttribute('data-uom') || '';
+
+            // Update quantity max and help text based on selected product quantity
+            const maxQuantity = parseInt(selectedOption.getAttribute('data-quantity') || '0', 10);
+            const quantityInput = document.getElementById('quantity');
+            const quantityHelp = document.getElementById('quantityHelp');
+
+            quantityInput.max = maxQuantity;
+            quantityHelp.textContent = `Maximum available quantity: ${maxQuantity}`;
+
+            if (quantityInput.value > maxQuantity) {
+                quantityInput.value = maxQuantity;
+            }
+        });
+
+        // Initialize product options visibility with no location selected
+        filterProductsByLocation("");
+
+        // Validate quantity input on user input
+        const quantityInput = document.getElementById('quantity');
+        quantityInput.addEventListener('input', function () {
+            const maxQuantity = parseInt(this.max, 10);
+            if (parseInt(this.value, 10) > maxQuantity) {
+                this.value = maxQuantity;
+            }
+            if (parseInt(this.value, 10) < 1) {
+                this.value = 1;
+            }
         });
     });
+
+    // Enable typing search on productSelector using jQuery and Select2 (if available)
+    if (window.jQuery && jQuery.fn.select2) {
+        $('#productSelector').select2({
+            placeholder: 'Select a product',
+            allowClear: true
+        });
+    }
 </script>
