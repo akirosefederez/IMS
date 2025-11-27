@@ -144,12 +144,58 @@
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
 
+                                                {{-- Checkout --}}
+                                                <a class="btn btn-sm btn-info" title="Checkout item" role="button"
+                                                    data-toggle="modal" data-target="#modal-checkout-{{ $checkin->id }}">
+                                                    <i class="bi bi-box-arrow-up"></i>
+                                                </a>
+
                                                 {{-- Delete --}}
                                                 <a class="btn btn-sm btn-danger" title="Delete item" role="button"
                                                     data-toggle="modal" data-target="#modal-delete-{{ $checkin->id }}">
                                                     <i class="bi bi-trash3-fill"></i>
                                                 </a>
                                         </tr>
+
+                                        {{-- Checkout Modal --}}
+                                        <div class="modal fade" id="modal-checkout-{{ $checkin->id }}" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h3 class="modal-title fs-5" id="exampleModalLabel">Checkout Item
+                                                        </h3>
+                                                        <a class="btn-close" class="btn" data-dismiss="modal"
+                                                            aria-label="Close"></a>
+                                                    </div>
+                                                    <form action="{{ url('admin/checkins/' . $checkin->id . '/checkout') }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label>Checkout Type</label>
+                                                                <select name="checkout_type" class="form-control" required>
+                                                                    <option value="" selected disabled>Select Checkout Type</option>
+                                                                    <option value="Delivery">Delivery</option>
+                                                                    <option value="Returned">Returned</option>
+                                                                    <option value="Borrowed Item">Borrowed Item</option>
+                                                                    <option value="Purchase Return">Purchase Return</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label>Remarks</label>
+                                                                <textarea name="remarks" class="form-control" rows="3"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-sm btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-sm btn-info">Checkout</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         {{-- Delete Modal --}}
                                         <div class="modal fade" id="modal-delete-{{ $checkin->id }}" tabindex="-1"
@@ -646,12 +692,58 @@
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
 
+                                                {{-- Checkout --}}
+                                                <a class="btn btn-sm btn-info" title="Checkout item" role="button"
+                                                    data-toggle="modal" data-target="#modal-checkout-{{ $checkin->id }}">
+                                                    <i class="bi bi-box-arrow-up"></i>
+                                                </a>
+
                                                 {{-- Delete --}}
                                                 <a class="btn btn-sm btn-danger" title="Delete item" role="button"
                                                     data-toggle="modal" data-target="#modal-delete-{{ $checkin->id }}">
                                                     <i class="bi bi-trash3-fill"></i>
                                                 </a>
                                         </tr>
+
+                                        {{-- Checkout Modal --}}
+                                        <div class="modal fade" id="modal-checkout-{{ $checkin->id }}" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h3 class="modal-title fs-5" id="exampleModalLabel">Checkout Item
+                                                        </h3>
+                                                        <a class="btn-close" class="btn" data-dismiss="modal"
+                                                            aria-label="Close"></a>
+                                                    </div>
+                                                    <form action="{{ url('admin/checkins/' . $checkin->id . '/checkout') }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label>Checkout Type</label>
+                                                                <select name="checkout_type" class="form-control" required>
+                                                                    <option value="" selected disabled>Select Checkout Type</option>
+                                                                    <option value="Delivery">Delivery</option>
+                                                                    <option value="Returned">Returned</option>
+                                                                    <option value="Borrowed Item">Borrowed Item</option>
+                                                                    <option value="Purchase Return">Purchase Return</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label>Remarks</label>
+                                                                <textarea name="remarks" class="form-control" rows="3"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-sm btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-sm btn-info">Checkout</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         {{-- Delete Modal --}}
                                         <div class="modal fade" id="modal-delete-{{ $checkin->id }}" tabindex="-1"
@@ -1149,12 +1241,63 @@
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
 
+                                                {{-- Checkout --}}
+                                                <a class="btn btn-sm btn-info" title="Checkout item" role="button"
+                                                    data-toggle="modal" data-target="#modal-checkout-{{ $checkin->id }}">
+                                                    <i class="bi bi-box-arrow-up"></i>
+                                                </a>
+
                                                 {{-- Delete --}}
                                                 <a class="btn btn-sm btn-danger" title="Delete item" role="button"
                                                     data-toggle="modal" data-target="#modal-delete-{{ $checkin->id }}">
                                                     <i class="bi bi-trash3-fill"></i>
                                                 </a>
                                         </tr>
+
+                                        {{-- Checkout Modal --}}
+                                        <div class="modal fade" id="modal-checkout-{{ $checkin->id }}" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h3 class="modal-title fs-5" id="exampleModalLabel">Checkout Item
+                                                        </h3>
+                                                        <a class="btn-close" class="btn" data-dismiss="modal"
+                                                            aria-label="Close"></a>
+                                                    </div>
+                                                    <form action="{{ url('admin/checkins/' . $checkin->id . '/checkout') }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label>Checkout Type</label>
+                                                                <select name="checkout_type" class="form-control" required>
+                                                                    <option value="" selected disabled>Select Checkout Type</option>
+                                                                    <option value="Delivery">Delivery</option>
+                                                                    <option value="Returned">Returned</option>
+                                                                    <option value="Borrowed Item">Borrowed Item</option>
+                                                                    <option value="Purchase Return">Purchase Return</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label>Quantity</label>
+                                                                <input type="number" name="quantity" class="form-control"
+                                                                    value="{{ $checkin->quantity }}" min="1" max="{{ $checkin->quantity }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label>Remarks</label>
+                                                                <textarea name="remarks" class="form-control" rows="3"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-sm btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-sm btn-info">Checkout</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         {{-- Delete Modal --}}
                                         <div class="modal fade" id="modal-delete-{{ $checkin->id }}" tabindex="-1"

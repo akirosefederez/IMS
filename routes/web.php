@@ -222,6 +222,7 @@ Route::prefix('admin')->middleware(['auth','isAdmin'])->group(function (){
         Route::post('/checkins', 'store');
         Route::get('/checkins/{checkin}/edit', 'edit');
         Route::put('/checkins/{checkin}', 'update');
+        Route::post('/checkins/{checkin}/checkout', 'checkout');
         Route::get('/checkins/{checkins}/delete', 'destroy')->middleware(['auth','password.confirm']);
         Route::get('/checkins/checkinsPDF', 'checkinsPDF');
 

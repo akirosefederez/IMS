@@ -184,6 +184,95 @@ class CheckinController extends Controller
         return redirect('/admin/checkins')->with('message', 'Item successfully updated!');
     }
 
+    public function checkout(Request $request, $id)
+    {
+        $request->validate([
+            'checkout_type' => 'required',
+            'remarks' => 'nullable|string',
+        ]);
+
+        $checkin = Checkin::findOrFail($id);
+        $product = Product::where('sku', $checkin->sku)->first();
+
+        if (!$product) {
+            return redirect('/admin/checkins')->with('error', 'Product not found in inventory.');
+        }
+
+        // Handle different checkout types
+        switch ($request->checkout_type) {
+            case 'Delivery':
+                // Create order item for delivery
+                \App\Models\OrderItem::create([
+                    'product_id' => $product->id,
+                    'quantity' => $checkin->quantity,
+                    'location' => $checkin->location,
+                    'checkoutdate' => now()->format('Y-m-d'),
+                    'sku' => $checkin->sku,
+                    'productcode' => $checkin->productcode,
+                    'model' => $checkin->model,
+                    'uom' => $checkin->uom,
+                    'itemdescription' => $checkin->itemdescription,
+                    'serialnumber' => $checkin->serialnumber,
+                    'remarks' => $request->remarks,
+                ]);
+                break;
+
+            case 'Returned':
+                // Create return slip
+                \App\Models\ReturnSlip::create([
+                    'product_id' => $product->id,
+                    'quantity' => $checkin->quantity,
+                    'location' => $checkin->location,
+                    'checkoutdate' => now()->format('Y-m-d'),
+                    'sku' => $checkin->sku,
+                    'productcode' => $checkin->productcode,
+                    'model' => $checkin->model,
+                    'uom' => $checkin->uom,
+                    'itemdescription' => $checkin->itemdescription,
+                    'serialnumber' => $checkin->serialnumber,
+                ]);
+                break;
+
+            case 'Borrowed Item':
+                // Create borrower record
+                \App\Models\Borrower::create([
+                    'product_id' => $product->id,
+                    'quantity' => $checkin->quantity,
+                    'location' => $checkin->location,
+                    'checkoutdate' => now()->format('Y-m-d'),
+                    'sku' => $checkin->sku,
+                    'productcode' => $checkin->productcode,
+                    'model' => $checkin->model,
+                    'uom' => $checkin->uom,
+                    'itemdescription' => $checkin->itemdescription,
+                    'serialnumber' => $checkin->serialnumber,
+                ]);
+                break;
+
+            case 'Purchase Return':
+                // Create purchase return
+                \App\Models\PurchaseReturn::create([
+                    'product_id' => $product->id,
+                    'quantity' => $checkin->quantity,
+                    'location' => $checkin->location,
+                    'returndate' => now()->format('Y-m-d'),
+                    'sku' => $checkin->sku,
+                    'productcode' => $checkin->productcode,
+                    'model' => $checkin->model,
+                    'uom' => $checkin->uom,
+                    'itemdescription' => $checkin->itemdescription,
+                    'serialnumber' => $checkin->serialnumber,
+                    'remarks' => $request->remarks,
+                ]);
+                break;
+        }
+
+        // Delete the checkin after checkout
+        $checkin->delete();
+
+        return redirect('/admin/checkins')->with('message', 'Item checked out successfully to ' . $request->checkout_type . '!');
+    }
+
     public function destroy($id)
     {
         $checkin = Checkin::findOrFail($id);
