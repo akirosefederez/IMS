@@ -34,15 +34,7 @@ class CheckinObserver
     public function created(Checkin $checkin)
     {
         //
-
-                $product = Product::where('location', $checkin->location)->where('sku', $checkin->sku)
-                ->first();
-
-                   $product->update([
-                        'quantity' => $product->quantity + $checkin->quantity,
-                    ]);
-
-
+        // Inventory updates are now handled in CheckinController to avoid conflicts
     }
 
 
@@ -62,18 +54,7 @@ class CheckinObserver
     public function deleted(Checkin $checkin)
     {
         //
-        $product = Product::where('sku', $checkin->sku)->first();
-
-        if($product){
-            $product->update([
-                'quantity' => $product->quantity - $checkin->quantity,
-            ]);
-        } else {
-            return redirect('/admin/checkin')->with('error', 'Can\'t delete non-existing item!');
-
-        }
-
-
+        // Inventory updates are now handled in CheckinController to avoid conflicts
     }
 
     /**
