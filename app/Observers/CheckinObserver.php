@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Checkin;
-use App\MOdels\Product;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class CheckinObserver
@@ -14,21 +14,13 @@ class CheckinObserver
 
      public function creating(Checkin $checkin)
      {
-         //
-
-
-                    // $product = Product::where('sku', $checkin->sku)->first();
-                   //  $product->update([
-                   //      'quantity' => $product->quantity + $checkin->quantity,
-                   //  ]);
-                  //  if (Checkin::where('sku', $checkin->sku)->exists()){
-                   //     $product = Product::where('sku', $checkin->sku)->first();
-                   //      $product->update([
-                   //           'quantity' => $product->quantity + $checkin->quantity,
-                      //    ]);
-                  //  }
-
-
+         // When a checkin is being created, increment the product inventory
+         $product = Product::where('sku', $checkin->sku)->first();
+         if ($product) {
+             $product->update([
+                 'quantity' => $product->quantity + $checkin->quantity,
+             ]);
+         }
      }
 
     public function created(Checkin $checkin)
@@ -54,7 +46,16 @@ class CheckinObserver
     public function deleted(Checkin $checkin)
     {
         //
-        // Inventory updates are now handled in CheckinController to avoid conflicts
+        // Restore inventory when a checkin is deleted (for example: checkout
+        // deletes the checkin after creating an OrderItem). This ensures any
+        // temporary deduction done for checkout is put back and net effect
+        // on inventory is zero.
+        $product = Product::where('sku', $checkin->sku)->first();
+        if ($product) {
+            $product->update([
+                'quantity' => $product->quantity + $checkin->quantity,
+            ]);
+        }
     }
 
     /**

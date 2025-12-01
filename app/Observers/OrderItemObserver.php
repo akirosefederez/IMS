@@ -33,13 +33,9 @@ class OrderItemObserver
      */
     public function deleted(OrderItem $orderItem): void
     {
-        //
-        $product = Product::where('sku', $orderItem->sku)->first();
-
-        $product->update([
-            'quantity'=> $product->quantity + $orderItem->quantity,
-        ]);
-
+        // Inventory restoration is handled when the originating Checkin is
+        // deleted (the checkout flow deletes the checkin after creating the
+        // OrderItem). Do not restore inventory here to avoid double-restores.
     }
 
     /**

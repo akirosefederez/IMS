@@ -277,15 +277,11 @@ class CheckinController extends Controller
     {
         $checkin = Checkin::findOrFail($id);
         if ($checkin) {
-            // Restore the quantity of deleted checkin back to inventory
-            $product = Product::where('sku', $checkin->sku)->first();
-            if ($product) {
-                $product->quantity += $checkin->quantity;
-                $product->save();
-            }
-
+            // Deletion will trigger CheckinObserver->deleted(), which
+            // restores inventory. Remove manual restore here to avoid
+            // double-incrementing product quantity.
             $checkin->delete();
-            return redirect('/admin/checkins')->with('warning', 'Check-in item deleted and inventory restored!');
+            return redirect('/admin/checkins')->with('warning', 'Check-in item deleted!');
         } else {
             return redirect('/admin/checkins')->with('error', 'Can\'t delete non-existing item!');
         }
