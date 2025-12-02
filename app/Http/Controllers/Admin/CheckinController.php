@@ -277,7 +277,7 @@ class CheckinController extends Controller
     {
         $checkin = Checkin::findOrFail($id);
         if ($checkin) {
-            // Deletion will trigger CheckinObserver->deleted(), which
+                // Deletion will trigger CheckinObserver->deleted(), which
             // restores inventory. Remove manual restore here to avoid
             // double-incrementing product quantity.
             $checkin->delete();
